@@ -10,6 +10,12 @@ import { CssBaseline } from '@material-ui/core'
 import { dark, light } from 'themes'
 import { connect } from 'react-redux'
 import { LIGHT } from 'config/constants'
+import { ApolloProvider } from '@apollo/react-hooks'
+import ApolloClient from 'apollo-boost'
+
+const client = new ApolloClient({
+    uri: 'http://localhost:4000',
+})
 
 const useStyles = makeStyles({
     root: {
@@ -26,14 +32,16 @@ const App = ({ theme }) => {
 
     return (
         <ThemeProvider theme={muiTheme}>
-            <CssBaseline />
+            <ApolloProvider client={client}>
+                <CssBaseline />
 
-            <div className={classes.root}>
-                <TopBar />
-                <Page>
-                    <Reviews />
-                </Page>
-            </div>
+                <div className={classes.root}>
+                    <TopBar />
+                    <Page>
+                        <Reviews />
+                    </Page>
+                </div>
+            </ApolloProvider>
         </ThemeProvider>
     )
 }
