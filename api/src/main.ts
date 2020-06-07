@@ -1,11 +1,11 @@
-import { ApolloServer, gql } from 'apollo-server';
-import { GraphQLScalarType } from 'graphql';
-import { books, reviews } from './data'
-import { ratingsValue } from './utils'
-import { Kind } from 'graphql/language';
-import dotenv from 'dotenv'
+import { ApolloServer, gql, ApolloError } from "apollo-server";
+import { GraphQLScalarType } from "graphql";
+import { books, reviews } from "./data";
+import { ratingsValue } from "./utils";
+import { Kind } from "graphql/language";
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
 const typeDefs = gql`
   scalar Rating
@@ -17,7 +17,7 @@ const typeDefs = gql`
     author: String
     description: String
   }
-  
+
   type Review {
     id: Int
     book: Book
@@ -29,6 +29,7 @@ const typeDefs = gql`
   type Query {
     books: [Book]
     reviews: [Review]
+    review(id: Int): Review
   }
 `;
 
@@ -36,21 +37,33 @@ const resolvers = {
   Query: {
     books: () => books,
     reviews: () => {
-      let b: { [key: number]: any } = {}
-      books.forEach(book => {
-        b[book.id] = { ...book }
-      })
-      return reviews.slice().map(review => {
+      let b: { [key: number]: any } = {};
+      books.forEach((book) => {
+        b[book.id] = { ...book };
+      });
+      return reviews.slice().map((review) => {
         return {
           ...review,
-          book: b[review.book]
-        }
-      })
+          book: b[review.book],
+        };
+      });
+    },
+    review: (_: any, args: any) => {
+      let b: { [key: number]: any } = {};
+      books.forEach((book) => {
+        b[book.id] = { ...book };
+      });
+      let review = reviews.filter((r) => r.id === args.id);
+      if (review.length === 0) {
+        return new ApolloError("Review not found", "404");
+      } else {
+        return { ...review[0], book: b[review[0].book] };
+      }
     },
   },
   Rating: new GraphQLScalarType({
-    name: 'Rating',
-    description: 'Rating custom scalar type',
+    name: "Rating",
+    description: "Rating custom scalar type",
     parseValue: ratingsValue,
     serialize: ratingsValue,
     parseLiteral(ast) {
@@ -61,8 +74,8 @@ const resolvers = {
     },
   }),
   Date: new GraphQLScalarType({
-    name: 'Date',
-    description: 'Date custom scalar type',
+    name: "Date",
+    description: "Date custom scalar type",
     parseValue(value) {
       return new Date(value);
     },
@@ -75,7 +88,7 @@ const resolvers = {
       }
       return null;
     },
-  })
+  }),
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });

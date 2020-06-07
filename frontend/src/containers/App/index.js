@@ -1,5 +1,5 @@
 import React from 'react'
-import { TopBar, Reviews } from 'containers'
+import { TopBar, Reviews, Review } from 'containers'
 import { Page } from 'components'
 import {
     makeStyles,
@@ -12,6 +12,7 @@ import { connect } from 'react-redux'
 import { LIGHT } from 'config/constants'
 import { ApolloProvider } from '@apollo/react-hooks'
 import ApolloClient from 'apollo-boost'
+import { Switch, Route } from 'react-router-dom'
 
 const client = new ApolloClient({
     uri: 'http://localhost:4000',
@@ -38,7 +39,14 @@ const App = ({ theme }) => {
                 <div className={classes.root}>
                     <TopBar />
                     <Page>
-                        <Reviews />
+                        <Switch>
+                            <Route path="/:id">
+                                <Review />
+                            </Route>
+                            <Route path="/">
+                                <Reviews />
+                            </Route>
+                        </Switch>
                     </Page>
                 </div>
             </ApolloProvider>

@@ -6,6 +6,7 @@ import { createStore } from 'redux'
 import rootReducer from './stores/reducers'
 import { loadValue, persistValue } from 'utils'
 import { LIGHT } from 'config/constants'
+import { BrowserRouter as Router } from 'react-router-dom'
 
 import './styles/index.css'
 
@@ -20,7 +21,9 @@ window.onbeforeunload = (event) => {
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            <App />
+            <Router>
+                <App />
+            </Router>
         </Provider>
     </React.StrictMode>,
     document.getElementById('root')
